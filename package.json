@@ -1,6 +1,6 @@
 {
   "name": "scoped-env",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "A Github action to expose scoped environment variables",
   "main": "lib/main.js",

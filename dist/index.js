@@ -9,11 +9,14 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.action = void 0;
 const action = async (input, output) => {
-    const { scope, secrets, includes, exporters } = input;
+    const { scope, secrets, includes, exporters, overrides } = input;
     const isPrefixOrSuffix = new RegExp(`(^${scope}_|_${scope}$)`);
     for (const [key, value] of Object.entries(secrets)) {
         if (key.startsWith(scope) || key.endsWith(scope)) {
-            output.export(key.replace(isPrefixOrSuffix, ''), value, exporters);
+            const newKey = key.replace(isPrefixOrSuffix, '');
+            if (overrides || !process.env[newKey]) {
+                output.export(key.replace(isPrefixOrSuffix, ''), value, exporters);
+            }
         }
         else if (includes.includes(key)) {
             output.export(key, value, exporters);
@@ -56,6 +59,9 @@ class Input {
     get exporters() {
         const input = (0, core_1.getInput)('exporters');
         return input === '' ? [] : input.split(',');
+    }
+    get overrides() {
+        return (0, core_1.getInput)('overrides') === 'true';
     }
 }
 exports.Input = Input;
