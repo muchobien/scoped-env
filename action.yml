@@ -16,6 +16,10 @@ inputs:
   includes:
     description: 'List of secrets to include that are not scoped'
     required: false
+  overrides:
+    description: 'Shoul override existing environment variables'
+    required: false
+    default: 'false'
   exporters:
     description: 'List of exporters to use'
     required: false

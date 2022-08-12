@@ -6,6 +6,7 @@ jest.mock('@actions/core')
 
 const DEFAULT_INPUTS = {
   includes: '',
+  overrides: 'false',
   exporters: 'env,output'
 }
 
@@ -319,6 +320,76 @@ describe('action', () => {
     expect(core.exportVariable).not.toHaveBeenCalledWith(
       'SHOULD_NOT_BE_EXPORTED',
       secrets.SHOULD_NOT_BE_EXPORTED
+    )
+    //#endregion
+  })
+
+  test('should not override existing env variables', async () => {
+    process.env.SHOULD_NOT_BE_OVERRIDDEN = 'SHOULD_NOT_BE_OVERRIDDEN'
+    const secrets = {
+      PROD_SECRET_1: 'PROD_SECRET_1',
+      PROD_SHOULD_NOT_BE_OVERRIDDEN: 'OVERRIDDEN'
+    }
+
+    // @ts-expect-error suppressing this error because we are mocking core.getInput
+    core.getInput = jest.fn().mockImplementation(
+      mockGetInput({
+        ...DEFAULT_INPUTS,
+        secrets: JSON.stringify(secrets),
+        scope: 'PROD',
+        exporters: 'env'
+      })
+    )
+
+    await run()
+
+    //#region EXPECTED OUTPUTS
+    expect(core.exportVariable).toHaveBeenCalledTimes(1)
+    expect(core.setSecret).toHaveBeenCalledTimes(1)
+    expect(core.exportVariable).toHaveBeenCalledWith(
+      'SECRET_1',
+      secrets.PROD_SECRET_1
+    )
+    expect(core.exportVariable).not.toHaveBeenCalledWith(
+      'SHOULD_NOT_BE_OVERRIDDEN',
+      secrets.PROD_SHOULD_NOT_BE_OVERRIDDEN
+    )
+    expect(process.env.SHOULD_NOT_BE_OVERRIDDEN).toBe(
+      'SHOULD_NOT_BE_OVERRIDDEN'
+    )
+    //#endregion
+  })
+
+  test('should override existing env variables', async () => {
+    process.env.SHOULD_BE_OVERRIDDEN = 'SHOULD_BE_OVERRIDDEN'
+    const secrets = {
+      PROD_SECRET_1: 'PROD_SECRET_1',
+      PROD_SHOULD_BE_OVERRIDDEN: 'OVERRIDDEN'
+    }
+
+    // @ts-expect-error suppressing this error because we are mocking core.getInput
+    core.getInput = jest.fn().mockImplementation(
+      mockGetInput({
+        ...DEFAULT_INPUTS,
+        secrets: JSON.stringify(secrets),
+        scope: 'PROD',
+        exporters: 'env',
+        overrides: 'true'
+      })
+    )
+
+    await run()
+
+    //#region EXPECTED OUTPUTS
+    expect(core.exportVariable).toHaveBeenCalledTimes(2)
+    expect(core.setSecret).toHaveBeenCalledTimes(2)
+    expect(core.exportVariable).toHaveBeenCalledWith(
+      'SECRET_1',
+      secrets.PROD_SECRET_1
+    )
+    expect(core.exportVariable).toHaveBeenCalledWith(
+      'SHOULD_BE_OVERRIDDEN',
+      secrets.PROD_SHOULD_BE_OVERRIDDEN
     )
     //#endregion
   })

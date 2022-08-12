@@ -30,4 +30,8 @@ export class Input {
     const input = getInput('exporters')
     return input === '' ? [] : (input.split(',') as Exporters[])
   }
+
+  get overrides(): boolean {
+    return getInput('overrides') === 'true'
+  }
 }
