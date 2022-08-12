@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          yarn: true
+          cache: 'yarn'
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -28,6 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./
+        if: ${{ g}}
         with:
           secrets: ${{ toJSON(secrets) }}
           scope: TEST
