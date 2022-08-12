@@ -1,0 +1,21 @@
+name: 'Scoped Env'
+description: 'A Github action to expose scoped environment variables'
+author: 'muchobien'
+inputs:
+  secrets:
+    description: 'Secrets context to extract secrets from'
+    required: true
+  scope:
+    description: 'Scope of the secrets to expose'
+    required: true
+  includes:
+    description: 'List of secrets to include that are not scoped'
+    required: false
+  exporters:
+    description: 'List of exporters to use'
+    required: false
+    default: 'env,output'
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

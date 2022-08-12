@@ -1,0 +1,46 @@
+name: "build-test"
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+      - "releases/*"
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          yarn: true
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn all
+
+  test: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          secrets: ${{ toJSON(secrets) }}
+          scope: TEST
+          includes: "FROM_INCLUDES"
+
+      - name: Check environment variables are set
+        run: |
+          if [ -z "$FROM_INCLUDES" ]; then
+            echo "FROM_INCLUDES is not set"
+            exit 1
+          fi
+
+          if [ -z "$FROM_SCOPED" ]; then
+            echo "FROM_SCOPED is not set"
+            exit 1
+          fi
