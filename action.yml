@@ -1,6 +1,11 @@
 name: 'Scoped Env'
 description: 'A Github action to expose scoped environment variables'
 author: 'muchobien'
+
+branding:
+  icon: play
+  color: blue
+
 inputs:
   secrets:
     description: 'Secrets context to extract secrets from'
