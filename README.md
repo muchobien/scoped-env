@@ -19,6 +19,7 @@ Add the following step to your workflow:
     scope: PROD
     includes: 'FROM_INCLUDES' # optional
     exporters: 'env,output' # default, optional
+    overrides: 'false' # optional, default false (override existing environment variables)
 ```
 
 ## License Summary
